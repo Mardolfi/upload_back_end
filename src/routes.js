@@ -2,6 +2,7 @@ const routes = require("express").Router();
 const multer = require("multer");
 const multerConfig = require("./config/multer");
 const PostModel = require("./models/Post");
+const path = require('path')
 
 routes.post("/posts", multer(multerConfig).single("file"), async (req, res) => {
   const { originalname: name, filename: key, size } = req.file;
@@ -15,6 +16,11 @@ routes.post("/posts", multer(multerConfig).single("file"), async (req, res) => {
 
   return res.json(post);
 });
+
+routes.get('/posts/download/:id', async (req, res) => {
+  const post = await PostModel.findById(req.params.id)
+  res.download(path.resolve(__dirname, '..', 'tmp', 'uploads', post.key))
+})
 
 routes.get('/posts', async (req, res) => {
     const posts = await PostModel.find({})
